@@ -11,58 +11,48 @@ export class Pharmacy {
     this.drugs = drugs;
   }
 
-  updateBenefitFervex(drug) {
+  updateBenefit(
+    drug,
+    changeRate,
+    expiredRate = changeRate,
+    benefitIsNull = false,
+  ) {
     drug.expiresIn -= 1;
-    if (drug.expiresIn < 1) {
-      return (drug.benefit = 0);
-    }
-    if (drug.expiresIn < 6) {
-      return (drug.benefit = Math.min(50, (drug.benefit += 3)));
-    }
-    if (drug.expiresIn < 11) {
-      return (drug.benefit = Math.min(50, (drug.benefit += 2)));
-    }
-    return (drug.benefit = Math.min(50, (drug.benefit += 1)));
-  }
 
-  updateBenefitHerbalTea(drug) {
-    drug.expiresIn -= 1;
-    if (drug.expiresIn < 1) {
-      return (drug.benefit = Math.min(50, (drug.benefit += 2)));
+    if (benefitIsNull) {
+      drug.benefit = 0;
+    } else {
+      drug.benefit = Math.min(
+        50,
+        Math.max(
+          0,
+          drug.benefit + (drug.expiresIn < 0 ? expiredRate : changeRate),
+        ),
+      );
     }
-    return (drug.benefit = Math.min(50, (drug.benefit += 1)));
-  }
-
-  updateBenefitDafalgan(drug) {
-    drug.expiresIn -= 1;
-    if (drug.expiresIn < 1) {
-      return (drug.benefit = Math.max(0, (drug.benefit -= 4)));
-    }
-    return (drug.benefit = Math.max(0, (drug.benefit -= 2)));
-  }
-  decreaseBenefitStandard(drug) {
-    drug.expiresIn -= 1;
-    return (drug.benefit =
-      drug.expiresIn > 0
-        ? Math.max(0, drug.benefit - 1)
-        : Math.max(0, drug.benefit - 2));
   }
 
   applyBenefitRules(drug) {
     const rules = {
-      standardDrugs: () =>
-        drug.benefit > 0 && this.decreaseBenefitStandard(drug),
-      "Herbal Tea": () => this.updateBenefitHerbalTea(drug),
-      Fervex: () => this.updateBenefitFervex(drug),
-      "Magic Pill": () => drug,
-      Dafalgan: () => this.updateBenefitDafalgan(drug),
+      "Herbal Tea": () => this.updateBenefit(drug, 1, 2),
+      Fervex: () => {
+        if (drug.expiresIn < 1) {
+          this.updateBenefit(drug, 0, 0, true);
+        } else {
+          this.updateBenefit(
+            drug,
+            drug.expiresIn < 6 ? 3 : drug.expiresIn < 11 ? 2 : 1,
+          );
+        }
+      },
+      Dafalgan: () => this.updateBenefit(drug, -2, -4),
+      "Magic Pill": () => {},
     };
-    (rules[drug.name] || rules.standardDrugs)();
+    (rules[drug.name] || (() => this.updateBenefit(drug, -1, -2)))();
   }
+
   updateBenefitValue() {
-    this.drugs.forEach((drug) => {
-      this.applyBenefitRules(drug);
-    });
+    this.drugs.forEach((drug) => this.applyBenefitRules(drug));
     return this.drugs;
   }
 }

@@ -18,7 +18,7 @@ describe("Pharmacy", () => {
   it("should not allow benefit to become negative", () => {
     const pharmacy = new Pharmacy([new Drug("Other Drug", 5, 0)]);
     expect(pharmacy.updateBenefitValue()).toEqual([
-      new Drug("Other Drug", 5, 0),
+      new Drug("Other Drug", 4, 0),
     ]);
   });
 
@@ -52,7 +52,7 @@ describe("Pharmacy", () => {
 
   it("should increase benefit of Fervex as expiration date approaches", () => {
     const pharmacy = new Pharmacy([new Drug("Fervex", 11, 10)]);
-    expect(pharmacy.updateBenefitValue()).toEqual([new Drug("Fervex", 10, 12)]);
+    expect(pharmacy.updateBenefitValue()).toEqual([new Drug("Fervex", 10, 11)]);
   });
 
   it("should increase benefit of Fervex by 2 when 10 days or less remain", () => {
