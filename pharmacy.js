@@ -32,6 +32,14 @@ export class Pharmacy {
     }
     return (drug.benefit = Math.min(50, (drug.benefit += 1)));
   }
+
+  updateBenefitDafalgan(drug) {
+    drug.expiresIn -= 1;
+    if (drug.expiresIn < 1) {
+      return (drug.benefit = Math.max(0, (drug.benefit -= 4)));
+    }
+    return (drug.benefit = Math.max(0, (drug.benefit -= 2)));
+  }
   decreaseBenefitStandard(drug) {
     drug.expiresIn -= 1;
     return (drug.benefit =
@@ -47,6 +55,7 @@ export class Pharmacy {
       "Herbal Tea": () => this.updateBenefitHerbalTea(drug),
       Fervex: () => this.updateBenefitFervex(drug),
       "Magic Pill": () => drug,
+      Dafalgan: () => this.updateBenefitDafalgan(drug),
     };
     (rules[drug.name] || rules.standardDrugs)();
   }
