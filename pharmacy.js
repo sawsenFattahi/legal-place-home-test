@@ -36,7 +36,7 @@ export class Pharmacy {
   updateBenefitDafalgan(drug) {
     drug.expiresIn -= 1;
     if (drug.expiresIn < 1) {
-      return (drug.benefit = 0);
+      return (drug.benefit = Math.max(0, (drug.benefit -= 4)));
     }
     return (drug.benefit = Math.max(0, (drug.benefit -= 2)));
   }
